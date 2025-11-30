@@ -15,8 +15,10 @@ utils.focus_runescape()
 time.sleep(0.5)
 utils.look_east()
 
-# p = player.Player()
-# p.update_current_position()
+p = player.Player()
+while True:
+  p.update_current_position()
+  time.sleep(0.6)
 # DEPOSIT_BOX_COORD = (972, 115)
 
 # utils.look_east()

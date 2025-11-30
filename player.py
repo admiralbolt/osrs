@@ -28,8 +28,9 @@ class Player:
 
     cv2.imwrite("coord_test.png", thresh)
 
-    result = self.text_reader.readtext(thresh, allowlist='0123456789., ')
-    extracted_text = result[0][1].replace(" ", "").replace(",", "").replace(".", "").replace("&", "8")
+    result = self.text_reader.readtext(thresh, allowlist='0123456789., ', detail=0)
+    joined = " ".join(result)
+    extracted_text = joined.replace(" ", "").replace(",", "").replace(".", "").replace("&", "8")
     if len(extracted_text) < 8 or len(extracted_text) > 9:
       print(f"error parsing tile location. extracted text: {extracted_text}")
       return False

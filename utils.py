@@ -29,6 +29,8 @@ SMELT_BOUND = (121, 891, 354, 47)
 
 RUN_COORD = (1455, 259)
 
+INVENTORY_SLOT1 = (1450, 700)
+
 
 text_reader = None
 

@@ -7,9 +7,7 @@ import time
 import utils
 
 
-WILLOW_TARGET = (3165, 3273)
-
-MAX_ZOOM_TILE_PIXELS = 33
+MAX_ZOOM_TILE_PIXELS = 30
 
 
 class Player:

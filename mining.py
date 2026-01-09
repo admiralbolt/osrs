@@ -35,6 +35,23 @@ RIMMINGTON_GOLD = [
   (2977, 3233)
 ]
 
+CRAFTING_GUILD_GOLD = [
+  (2938, 3280),
+  (2938, 3278),
+  (2939, 3276),
+  (2941, 3276),
+  (2942, 3276),
+  (2943, 3279),
+  (2943, 3280)
+]
+
+FALADOR_COAL = [
+  (3039, 9738),
+  (3037, 9739),
+  (3041, 9740),
+  (3039, 9741),
+]
+
 
 class Mining:
 
@@ -68,6 +85,7 @@ class Mining:
     return None
   
   def wait_for_mining_to_finish(self):
+    self.player.wait_til_stopped()
     time.sleep(2.25)
     while not utils.skill_inactive():
       time.sleep(0.25)
@@ -82,11 +100,9 @@ class Mining:
       else:
         time.sleep(1)
 
-      
-
-
     
 if __name__ == "__main__":
-  m = Mining(rock_type="gold", rock_spots=RIMMINGTON_GOLD)
+  m = Mining(rock_type="gold", rock_spots=CRAFTING_GUILD_GOLD)
   utils.focus_runescape()
+  utils.open_inventory()
   m.mine_until_full()

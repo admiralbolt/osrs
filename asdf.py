@@ -10,15 +10,20 @@ import fishing
 # utils.focus_runescape()
 # utils.logout()
 
-# utils.login_and_setup()
 utils.focus_runescape()
-time.sleep(0.5)
-utils.look_east()
+utils.iterate_inventory()
+# print(utils.is_run_on())
+# if utils.is_run_on():
+#   utils.toggle_run()
 
-p = player.Player()
-while True:
-  p.update_current_position()
-  time.sleep(0.6)
+print(f"skill_inactive: {utils.skill_inactive()}")
+
+
+# utils.login_and_setup()
+
+
+# p = player.Player()
+# p.update_current_position()
 # DEPOSIT_BOX_COORD = (972, 115)
 
 # utils.look_east()
@@ -63,8 +68,6 @@ while True:
 # im = cv2.imread("images/burnt_shrimp.png")
 
 # utils.look_west()
-
-utils.open_inventory()
 
 
 

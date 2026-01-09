@@ -3,33 +3,35 @@ import numpy as np
 import pyautogui
 import subprocess
 import math
+import random
 import time
 import easyocr
 
 LAST_LOG_BOUND = (10, 1029, 760, 18)
-SKILL_STATUS_BOUND = (20, 100, 170, 25)
+SKILL_STATUS_BOUND = (25, 91, 160, 25)
 MAIN_CONTENT_BOUND = (22, 195, 1100, 625)
-INVENTORY_BUTTON_BOUND = (1205, 1067, 45, 46)
+INVENTORY_BUTTON_BOUND = (1158, 1000, 41, 44)
 # Sidebar XP Tracker Bound
 RUNELITE_XP_BUTTON_BOUND = (1697, 89, 25, 25)
 
 CLICK_HERE_TO_PLAY_BUTTON_BOUND = (911, 545, 210, 52)
 
 # WITHOUT the Runelite sidebar open.
-INVENTORY_BOUND = (1412, 670, 268, 383)
+INVENTORY_BOUND = (1353, 595, 280, 390)
 
-TILE_LOC_BOUND = (68, 190, 109, 25)
+TILE_LOC_BOUND = (71, 180, 109, 25)
 
-CENTER = (849, 595)
+CENTER = (824, 560)
 
+DEPOSIT_INVENTORY_BUTTON = (940, 765)
 
 # SMELTING BOUND
 SMELT_BOUND = (121, 891, 354, 47)
 
 
-RUN_COORD = (1455, 259)
+RUN_COORD = (1403, 249)
 
-INVENTORY_SLOT1 = (1450, 700)
+INVENTORY_SLOT1 = (1402, 629)
 
 
 text_reader = None
@@ -38,7 +40,7 @@ def focus_runescape() -> None:
   subprocess.call(["open", "-a", "/Applications/RuneLite.app"])
 
 def look_north() -> None:
-  pyautogui.moveTo(1458, 98)
+  pyautogui.moveTo(1407, 86)
   time.sleep(0.1)
   pyautogui.click()
 
@@ -54,17 +56,25 @@ def look_east() -> None:
   time.sleep(0.8)
   pyautogui.keyUp("left")
 
+def look_south() -> None:
+  look_north()
+  pyautogui.keyDown("left")
+  time.sleep(1.7)
+  pyautogui.keyUp("left")
+
 def open_inventory() -> None:
   if find_on_screen(window_bounds=INVENTORY_BUTTON_BOUND, template_path="images/inventory_button_unopened.png", save_grab=True, confidence=0.93):
+    time.sleep(1)
     pyautogui.click((INVENTORY_BUTTON_BOUND[0] + INVENTORY_BUTTON_BOUND[2] / 2), (INVENTORY_BUTTON_BOUND[1] + INVENTORY_BUTTON_BOUND[3] / 2))
 
 def full_inventory() -> bool:
   # A hack to check if our inventory is full. We search for a solid rectangle
   # of the inventory background image. If we can't find it, our inventory is
   # full.
-  gah = find_on_screen(window_bounds=INVENTORY_BOUND, template_path="images/inventory_background.png", confidence=0.8)
-  print(gah)
-  return find_on_screen(window_bounds=INVENTORY_BOUND, template_path="images/inventory_background.png", confidence=0.8) is None
+  return find_on_screen(window_bounds=INVENTORY_BOUND, template_path="images/inventory_background.png", save_grab=True, confidence=0.8) is None
+
+def deposit_inventory():
+  click_then_wait(DEPOSIT_INVENTORY_BUTTON, delay=1.1)
 
 
 def skill_inactive() -> bool:
@@ -76,7 +86,7 @@ def skill_inactive() -> bool:
   return cv2.countNonZero(rthresh) >= 50 or cv2.countNonZero(gthresh) <= 50
   
 
-def find_on_screen(window_bounds=tuple[int, int, int, int], template_path=None, confidence=0.9, save_grab=False):
+def find_on_screen(window_bounds: tuple[int, int, int, int]=None, template_path=None, confidence=0.9, save_grab=False):
   """
   Args:
     window_bounds: left, top, width, height.
@@ -105,39 +115,30 @@ def move(point: tuple[int, int], window_bounds :tuple[int, int, int, int]=None):
   pyautogui.moveTo(point[0] + window_bounds[0], point[1] + window_bounds[1])
 
 
+OKAY_BUTTON_MOUSE_COORD = (825, 509)
+PLAY_BUTTON_MOUSE_COORD = (821, 450)
+PLAY_BUTTON2_MOUSE_COORD = (833, 563)
+MINIMAP_MOUSE_COORD = (1530, 178)
+
+def maybe_reconnect():
+  try:
+    pyautogui.locateOnScreen(image="images/you_were_disconnected.png")
+  except:
+    return
+
+  click_then_wait(OKAY_BUTTON_MOUSE_COORD, delay=2)
+  login_and_setup()
+
+
 def login_and_setup():
   focus_runescape()
   time.sleep(1)
 
-  # If XP tracker is opened, close it.
-  if find_on_screen(window_bounds=RUNELITE_XP_BUTTON_BOUND, template_path="images/runelite_xp_open.png"):
-    pyautogui.moveTo(1713, 104)
-    time.sleep(0.1)
-    pyautogui.click() 
-    time.sleep(0.5)
-
-  pyautogui.moveTo(822, 457)
-  time.sleep(0.25)
-  pyautogui.click()
-
-  # Sometimes logging in can take a while. We wait for the servers to respond
-  # for a bit.
-  for _ in range(3):
-    time.sleep(6)
-
-    if find_on_screen(window_bounds=CLICK_HERE_TO_PLAY_BUTTON_BOUND, template_path="images/click_here_to_play_button.png"):
-      break
-
-  pyautogui.moveTo(836, 568)
-  time.sleep(0.25)
-  pyautogui.click()
-  time.sleep(3)
+  click_then_wait(PLAY_BUTTON_MOUSE_COORD, delay=12)
+  click_then_wait(PLAY_BUTTON2_MOUSE_COORD, delay=7)
 
   # Look north.
-  pyautogui.moveTo(1458, 98)
-  time.sleep(0.25)
-  pyautogui.click()
-  time.sleep(0.5)
+  look_north()
 
   # Zoom out.
   pyautogui.moveTo(*CENTER)
@@ -149,19 +150,24 @@ def login_and_setup():
   time.sleep(1)
   pyautogui.keyUp("up")
 
+  # Zoom mini-map out.
+  pyautogui.moveTo(*MINIMAP_MOUSE_COORD)
+  pyautogui.scroll(-50)
+  time.sleep(1)
+
   # Open inventory
   open_inventory()
 
 
 def logout():
   open_inventory()
-  pyautogui.moveTo(1672, 87)
+  pyautogui.moveTo(1623, 73)
   time.sleep(0.25)
   pyautogui.click()
 
   time.sleep(1)
 
-  pyautogui.moveTo(1537, 1000)
+  pyautogui.moveTo(1488, 936)
   time.sleep(0.25)
   pyautogui.click()
 
@@ -198,11 +204,11 @@ def distance(a: tuple[int, int], b: tuple[int, int]) -> float:
   return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
 
 
-def click_then_wait(point: tuple[int, int], delay: float=0.75):
+def click_then_wait(point: tuple[int, int], delay: float=0.5):
   pyautogui.moveTo(*point)
   time.sleep(0.1)
   pyautogui.click()
-  time.sleep(delay)
+  time.sleep(delay + 0.3 * random.random())
 
 def right_click(point: tuple[int, int]):
   pyautogui.moveTo(*point)
@@ -212,9 +218,16 @@ def right_click(point: tuple[int, int]):
 
 def toggle_run():
   pyautogui.moveTo(*RUN_COORD)
-  time.sleep(0.1)
+  time.sleep(0.1 + 0.05 * random.random())
   pyautogui.click()
-  time.sleep(0.1)
+  time.sleep(0.1 + 0.05 * random.random())
+
+def is_run_on():
+  try:
+    pyautogui.locateOnScreen(image="images/run_is_off.png", confidence=0.9)
+    return False
+  except:
+    return True
 
 
 
@@ -243,6 +256,12 @@ def get_inventory_info(im, x=0, y=0):
   }
 
 
+def get_inventory_center(x=0, y=0):
+  min_x = INITIAL_PADDING_X + PER_PADDING_X * x + ICON_WIDTH * x
+  min_y = INITIAL_PADDING_Y + PER_PADDING_Y * y + ICON_HEIGHT * y
+  return (INVENTORY_BOUND[0] + min_x + ICON_WIDTH / 2, INVENTORY_BOUND[1] + min_y + ICON_HEIGHT / 2)
+
+
 def deposit_rows(rows=3):
   screen_grab = pyautogui.screenshot(region=INVENTORY_BOUND)
   im = cv2.cvtColor(np.array(screen_grab), cv2.COLOR_RGB2BGR)
@@ -256,3 +275,10 @@ def deposit_rows(rows=3):
       time.sleep(0.15)
       pyautogui.click()
       time.sleep(0.15)
+
+def iterate_inventory(n=14, delay=0.1):
+  for q in range(n):
+    i = q // 4
+    z = q % 4
+    j = 3 - z if i % 2 == 0 else z
+    click_then_wait(get_inventory_center(x=j, y=i), delay=delay)

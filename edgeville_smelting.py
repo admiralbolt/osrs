@@ -10,23 +10,19 @@ import numpy as np
 import cooking
 
 
-GOLD_ORE_COORD = (573, 258)
+GOLD_ORE_COORD = (621, 192)
 
-WITHDRAW_X_Y_OFFSET = 131
-
-CLOSE_BANK_COORD = (1027, 90)
-
-SMITH_FROM_BANK = (1215, 457)
-BANK_FROM_SMITH = (408, 804)
+SMITH_FROM_BANK = (1171, 416)
+BANK_FROM_SMITH = (401, 757)
 
 
-INVENTORY_SLOT1 = (1450, 700)
+SMITHING_CONFIRM_ALL_BUTTON = (391, 936)
 
-SMITHING_CONFIRM_ALL_BUTTON = (391, 1002)
+FURNACE_COORD = (856, 549)
 
-FURNACE_COORD = (883, 590)
+AMULET_COORD = (372, 510)
 
-AMULET_COORD = (397, 544)
+IRON_COORD = (547, 247)
 
 
 
@@ -49,8 +45,8 @@ class Agent:
 
   def deposit_withdraw_then_close(self):
     print("depositing items, and closing bank.")
-    utils.click_then_wait(INVENTORY_SLOT1, 0.4)
-    utils.click_then_wait(GOLD_ORE_COORD, 1.5)
+    utils.deposit_inventory()
+    utils.click_then_wait(IRON_COORD, 1.5)
 
   def navigate_to_smithy(self):
     print("navigating to forge...")
@@ -65,10 +61,7 @@ class Agent:
 
   def wait_then_smith(self):
     for _ in range(5):
-      if utils.find_on_screen(window_bounds=utils.SMELT_BOUND, template_path="images/smelting/smelting_confirmation.png", confidence=0.8):
-        break
-
-      if utils.find_on_screen(window_bounds=utils.SMELT_BOUND, template_path="images/smelting/smelting_confirmation2.png", confidence=0.8):
+      if utils.find_on_screen(template_path="images/smelting/smelting_confirmation.png", confidence=0.8):
         break
 
       print("  no confirmation found...")
@@ -89,7 +82,7 @@ class Agent:
     self.deposit_withdraw_then_close()
     self.navigate_to_smithy()
     self.wait_then_smith()
-    self.make_amulets()
+    # self.make_amulets()
     self.navigate_to_bank()
 
 
@@ -102,7 +95,7 @@ if __name__ == "__main__":
   # a.make_amulets()
   # a.navigate_to_bank()
 
-  for i in range(113):
+  for i in range(30):
     a.work_loop()
 
 

@@ -6,8 +6,8 @@ import pyautogui
 import time
 import utils
 
-
-MAX_ZOOM_TILE_PIXELS = 30
+MAX_ZOOM_PIXELS_PER_TILE_X = 32
+MAX_ZOOM_PIXELS_PER_TILE_Y = 28
 
 
 class Player:
@@ -34,26 +34,28 @@ class Player:
       return False
     
     self.current_position = (int(extracted_text[:4]), int(extracted_text[4:8]))
-    print(f"  current_pos: {self.current_position}")
+    # print(f"  current_pos: {self.current_position}")
     return True
 
-  def navigate_to_target(self, target: tuple[int, int]):
+  def navigate_to_target(self, target: tuple[int, int], call_twice: bool = True, wait: bool = True):
     print(f"navigating to target: {target}")
     self.update_current_position()
     self.move_relative_tiles((
       target[0] - self.current_position[0], 
       target[1] - self.current_position[1]
     ))
-    if self.wait_til_pos(target):
-      return
+    if wait and self.wait_til_stopped(target):
+        return
     
-    # Otherwise, we never made it (could be a topology thingy).
-    # We call navigate steps, AGAIN.
-    self.move_relative_tiles((
-      target[0] - self.current_position[0], 
-      target[1] - self.current_position[1]
-    ))
-    self.wait_til_pos(target)
+    if call_twice:
+      # Otherwise, we never made it (could be a topology thingy).
+      # We call navigate steps, AGAIN.
+      self.move_relative_tiles((
+        target[0] - self.current_position[0], 
+        target[1] - self.current_position[1]
+      ))
+      if wait: 
+        self.wait_til_pos(target)
 
   def move_mouse_to_target(self, target: tuple[int, int]):
     self.update_current_position()
@@ -65,8 +67,8 @@ class Player:
   def move_mouse_relative_tiles(self, tiles: tuple[int, int]):
     pyautogui.moveTo(*utils.CENTER)
     time.sleep(0.02)
-    x_offset = MAX_ZOOM_TILE_PIXELS * tiles[0]
-    y_offset = -1 * MAX_ZOOM_TILE_PIXELS * tiles[1]
+    x_offset = MAX_ZOOM_PIXELS_PER_TILE_X * tiles[0]
+    y_offset = -1 * MAX_ZOOM_PIXELS_PER_TILE_Y * tiles[1]
     pyautogui.moveRel(x_offset, y_offset)
   
   def move_relative_tiles(self, tiles: tuple[float, float]):

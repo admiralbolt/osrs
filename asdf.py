@@ -11,12 +11,15 @@ import fishing
 # utils.logout()
 
 utils.focus_runescape()
-utils.iterate_inventory()
 # print(utils.is_run_on())
 # if utils.is_run_on():
 #   utils.toggle_run()
 
-print(f"skill_inactive: {utils.skill_inactive()}")
+# print(f"skill_inactive: {utils.skill_inactive()}")
+
+p = player.Player()
+p.update_current_position()
+p.navigate_to_target((3510, 3484))
 
 
 # utils.login_and_setup()

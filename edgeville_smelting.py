@@ -13,7 +13,11 @@ import cooking
 GOLD_ORE_COORD = (621, 192)
 
 SMITH_FROM_BANK = (1171, 416)
-BANK_FROM_SMITH = (401, 757)
+BANK_FROM_SMITH = (348, 763)
+
+GOLD_BAR_COORD = (481, 356)
+RUBY_COORD = (765, 247)
+NECKALCE_COORD = (600, 418)
 
 
 SMITHING_CONFIRM_ALL_BUTTON = (391, 936)
@@ -46,7 +50,8 @@ class Agent:
   def deposit_withdraw_then_close(self):
     print("depositing items, and closing bank.")
     utils.deposit_inventory()
-    utils.click_then_wait(IRON_COORD, 1.5)
+    utils.click_then_wait(GOLD_BAR_COORD, delay=0.75)
+    utils.click_then_wait(RUBY_COORD, delay=0.75)
 
   def navigate_to_smithy(self):
     print("navigating to forge...")
@@ -76,13 +81,15 @@ class Agent:
     utils.click_then_wait(FURNACE_COORD)
 
     utils.click_then_wait(AMULET_COORD, delay=55)
+
+  def make_necklaces(self):
+    utils.click_then_wait(NECKALCE_COORD, delay=25.5)
   
  
   def work_loop(self):
     self.deposit_withdraw_then_close()
     self.navigate_to_smithy()
-    self.wait_then_smith()
-    # self.make_amulets()
+    self.make_necklaces()
     self.navigate_to_bank()
 
 
@@ -92,10 +99,7 @@ if __name__ == "__main__":
   utils.open_inventory()
   utils.look_north()
 
-  # a.make_amulets()
-  # a.navigate_to_bank()
-
-  for i in range(30):
+  for i in range(32 ):
     a.work_loop()
 
 

@@ -204,11 +204,11 @@ def distance(a: tuple[int, int], b: tuple[int, int]) -> float:
   return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
 
 
-def click_then_wait(point: tuple[int, int], delay: float=0.5):
+def click_then_wait(point: tuple[int, int], delay: float=0.5, variance: float=0.25, wait_to_click: float=0.25):
   pyautogui.moveTo(*point)
-  time.sleep(0.1)
+  time.sleep(wait_to_click)
   pyautogui.click()
-  time.sleep(delay + 0.3 * random.random())
+  time.sleep(delay + variance * random.random())
 
 def right_click(point: tuple[int, int]):
   pyautogui.moveTo(*point)
@@ -282,3 +282,33 @@ def iterate_inventory(n=14, delay=0.1):
     z = q % 4
     j = 3 - z if i % 2 == 0 else z
     click_then_wait(get_inventory_center(x=j, y=i), delay=delay)
+
+
+def color_count(lower_bgr: list[int], upper_bgr: list[int]):
+  screen_grab = pyautogui.screenshot()
+  window_im = cv2.cvtColor(np.array(screen_grab), cv2.COLOR_RGB2BGR)
+  filtered = cv2.inRange(window_im, np.array(lower_bgr), np.array(upper_bgr))
+  return cv2.countNonZero(filtered)
+
+
+def color_moments(lower_bgr: list[int], upper_bgr: list[int], min_area: int = 500):
+  screen_grab = pyautogui.screenshot()
+  window_im = cv2.cvtColor(np.array(screen_grab), cv2.COLOR_RGB2BGR)
+  filtered = cv2.inRange(window_im, np.array(lower_bgr), np.array(upper_bgr))
+  dilate = cv2.dilate(filtered, (5, 5))
+  contours, hierarchy = cv2.findContours(image=dilate, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_NONE)
+
+  cv2.imwrite("filtered.png", dilate)
+
+
+  valid_points = []
+
+  for _, contour in enumerate(contours):
+    if cv2.contourArea(contour) < min_area:
+      continue
+
+    m = cv2.moments(contour)
+    point = (int(m["m10"] / m["m00"] / 2), int(m["m01"] / m["m00"] / 2))
+    valid_points.append(point)
+            
+  return valid_points
